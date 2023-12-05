@@ -1,4 +1,4 @@
-with open("part_1/input.txt") as file:
+with open("input.txt") as file:
     input = file.readlines()
 input = [i.strip() for i in input]
 

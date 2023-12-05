@@ -1,4 +1,4 @@
-with open("part_2/input.txt") as file:
+with open("input.txt") as file:
     input = file.readlines()
 input = [i.strip() for i in input]
 
@@ -23,28 +23,29 @@ def overlap( range1, range2 ):
 def next_type( rng, convertinfo ):
     left = [ rng ]
     r = []
-    for rng in left:
+    while left:
+        lft = left.pop()
         for ci in convertinfo:
-            
-        
-    for ci in convertinfo:
-        ovrlp = overlap( rng, (ci[1],ci[1]+ci[2]) )
-        delta = ci[0]-ci[1]
-        r.append( ( ovrlp[0]+delta, ovrlp[1]+delta ) )
-    if r:
-        return r
-    return rng
+            ovrlp = overlap( lft, (ci[1],ci[1]+ci[2]) )
+            if ovrlp[0] < ovrlp[1]:
+                delta = ci[0]-ci[1]
+                r.append( (ovrlp[0]+delta, ovrlp[1]+delta) )
+                if ovrlp != lft:
+                    lft1 = (lft[0], ovrlp[0])
+                    lft2 = (ovrlp[1], lft[1])
+                    if lft1[0] < lft1[1]: left.append(lft1)
+                    if lft2[0] < lft2[1]: left.append(lft2)
+                break
+        else:
+            r.append(lft)
+    return r
 
 def min_location( range_, thing_index ):
     if thing_index == len(thing_to_things):
         return range_[0]
 
-    locations = []
-    for ci in thing_to_things[thing_index]:
-        converted = convert( range_, ci )
-        if converted[0] >= converted[1]:
-            continue
-        locations.append( min_location( converted, thing_index+1 ) )
+    nxt_ranges = next_type( range_, thing_to_things[thing_index] )
+    locations = [ min_location( i, thing_index+1 ) for i in nxt_ranges ]
 
     return min( locations )
 
@@ -52,7 +53,4 @@ seedranges = [(i, i+j) for i, j in zip(seeds[::2], seeds[1::2])]
 locations = []
 for seedrange in seedranges:
     locations.append( min_location(seedrange, 0) )
-# print(locations)
-print(convert( (79, 79+14), thing_to_things[0][0] ))
-
-# print(convert((20, 30), (26, 22, 5)))
+print(min(locations))
