@@ -1,29 +1,26 @@
 with open("part_1/input.txt") as file:
     input = file.readlines()
 input = [i.strip() for i in input]
-arrangements, nums = [], []
-for i in input:
-    a, b = i.split(' ')
-    arrangements.append(a)
-    nums.append(b)
-nums = [[int(k) for k in j.split(',')] for j in nums]
+
+empty_rows = [i for i, v in enumerate(input) if all([i=='.' for i in v])]
+empty_columns = []
+for x in range(len(input[0])):
+    if all([input[i][x]=='.' for i in range(len(input))]):
+        empty_columns.append(x)
+
+galaxies = []
+for y, l in enumerate(input):
+    y = y + len([i for i in empty_rows if i < y])
+    for x, c in enumerate(l):
+        if c == '#':
+            x = x + len([i for i in empty_columns if i < x])
+            galaxies.append( (x, y) )
 
 
+n = 0
+for i, g1 in enumerate(galaxies):
+    for g2 in galaxies[i+1:]:
+        n += abs(g1[0]-g2[0])+abs(g1[1]-g2[1])
 
-brokens = []
-for i in arrangements:
-    brokens.append([])
-    n = 0
-    i = i.replace( '?', '.' )
-    while True:
-        n1 = i.find('#', n)
-        if n1 == -1: break
-        n2 = i.find('.', n1)
-        if n2 == -1: n2 = len(i)
-        brokens[-1].append((n1, n2-n1))
-        n = n2
-        if n == -1 or n == len(i): break
 
-print(brokens)
-
-# def num_pos( arrangement, nums ):
+print(n)
