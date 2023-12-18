@@ -23,16 +23,19 @@ import functools
 
 
 @functools.cache
-def get_arrangements( brokens, nums, starts ):
+def get_arrangements( brokens, nums, starts, start ):
     if not nums and all([all([i!='#' for i in j]) for j in brokens]):
-        print(brokens, nums, starts)
         return [[]]
+    if not nums:
+        return None
     arrangements = []
     cur = nums[0]
     for i, arrangement in enumerate(brokens):
         curstart = starts[i]
         for j, c in enumerate(arrangement):
             if len(arrangement)-j >= cur:
+                if j+curstart < start:
+                    continue
                 if j-1 >= 0 and brokens[i][j-1] == '#':
                     continue
                 if j+cur < len(brokens[i]) and brokens[i][j+cur] == '#':
@@ -42,9 +45,9 @@ def get_arrangements( brokens, nums, starts ):
                 nbrokens = (*brokens[:i], ) + ((part1,) if part1 else ()) + ((part2,) if part2 else ()) + (*brokens[i+1:], )
                 nstarts = []
                 if part1: nstarts.append(curstart)
-                if part2: nstarts.append(j+2+curstart)
+                if part2: nstarts.append(j+cur+curstart+1)
                 nstarts = tuple(nstarts+[v for p, v in enumerate(starts) if p != i])
-                r = get_arrangements( nbrokens, nums[1:], nstarts )
+                r = get_arrangements( nbrokens, nums[1:], nstarts, curstart+cur+j )
                 if r:
                     # print(brokens, nbrokens, repr(part1), repr(part2), cur,'|',curstart,starts, '|', i, j)
                     for s in r:
@@ -54,8 +57,18 @@ def get_arrangements( brokens, nums, starts ):
                 #     arrangements.append(list(range(j+curstart,j+cur+curstart)))
     return arrangements
     
-i = 5
-fss = set([frozenset(i) for i in get_arrangements(tuple(brokens[i]), tuple(nums[i]), tuple(starts[i]))])
-print(brokens[i], nums[i], starts[i], fss, len(fss))
+s = 0
+for i in range(len(brokens)):
+    fss = set([frozenset(i) for i in get_arrangements(tuple(brokens[i]), tuple(nums[i]), tuple(starts[i]), 0)])
+    s += len(fss)
+print(s)
+# fss = set([frozenset(j) for j in get_arrangements(tuple(('????',)), tuple((1,)), tuple((0,)))])
+# print(brokens[i], nums[i], starts[i])
+# print(fss, len(fss))
+# for i in fss:
+#     s = ['.'] * 17
+#     for j in i:
+#         s[j] = '#'
+#     print(''.join(s))
 
 # def num_pos( arrangement, nums ):
